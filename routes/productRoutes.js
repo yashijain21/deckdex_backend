@@ -1,7 +1,16 @@
 ﻿const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { uploadProducts, getProducts, getProductById, getFilters } = require('../controllers/productController');
+const {
+  uploadProducts,
+  getProducts,
+  getProductById,
+  getFilters,
+  createProduct,
+  updateProduct,
+  deleteProduct
+} = require('../controllers/productController');
+
 const { authMiddleware, adminOnly } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
@@ -28,5 +37,14 @@ router.post('/upload', authMiddleware, adminOnly, upload.single('file'), csvVali
 router.get('/', getProducts);
 router.get('/filters', getFilters);
 router.get('/:id', getProductById);
+// CREATE product
+router.post('/', authMiddleware, adminOnly, createProduct);
+
+// UPDATE product
+router.put('/:id', authMiddleware, adminOnly, updateProduct);
+
+// DELETE product
+router.delete('/:id', authMiddleware, adminOnly, deleteProduct);
+
 
 module.exports = router;

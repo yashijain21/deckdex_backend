@@ -138,5 +138,92 @@ const getFilters = async (req, res, next) => {
   }
 };
 
+/* ================================
+   CREATE PRODUCT
+================================ */
 
-module.exports = { uploadProducts, getProducts, getProductById, getFilters };
+const createProduct = async (req, res, next) => {
+  try {
+    const data = req.body;
+
+    // Basic validation (extend as needed)
+    if (!data.name || !data.price || !data.brand) {
+      return res.status(400).json({ message: "name, price, brand are required" });
+    }
+
+    const product = await Product.create(data);
+
+    res.status(201).json({
+      message: "Product created successfully",
+      product
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+/* ================================
+   UPDATE PRODUCT
+================================ */
+
+const updateProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const product = await Product.findByIdAndUpdate(
+      id,
+      updates,
+      { new: true, runValidators: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json({
+      message: "Product updated successfully",
+      product
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+/* ================================
+   DELETE PRODUCT
+================================ */
+
+const deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findByIdAndDelete(id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json({
+      message: "Product deleted successfully"
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = {
+  uploadProducts,
+  getProducts,
+  getProductById,
+  getFilters,
+  createProduct,     // ✅
+  updateProduct,     // ✅
+  deleteProduct      // ✅
+};
+
