@@ -1,6 +1,7 @@
-﻿const express = require('express');
+const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const {
   uploadProducts,
   getProducts,
@@ -33,7 +34,15 @@ const csvValidation = (req, res, next) => {
   next();
 };
 
-router.post('/upload', authMiddleware, adminOnly, upload.single('file'), csvValidation, uploadProducts);
+const ensureUploadsDir = (req, res, next) => {
+  const dir = path.join(process.cwd(), 'uploads');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  next();
+};
+
+router.post('/upload', authMiddleware, adminOnly, ensureUploadsDir, upload.single('file'), csvValidation, uploadProducts);
 router.get('/', getProducts);
 router.get('/filters', getFilters);
 router.get('/:id', getProductById);
@@ -48,3 +57,4 @@ router.delete('/:id', authMiddleware, adminOnly, deleteProduct);
 
 
 module.exports = router;
+
