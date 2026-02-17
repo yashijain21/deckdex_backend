@@ -32,12 +32,14 @@ const createCheckoutSession = async ({
   amount,
   currency = 'sek',
   orderId,
+  checkoutDataId,
   successUrl,
   cancelUrl,
   customerEmail,
   customerName,
   customerPhone
 }) => {
+  const ref = checkoutDataId || orderId;
   return stripe.checkout.sessions.create({
     mode: 'payment',
     payment_method_types: resolvePaymentMethodTypes(),
@@ -50,7 +52,7 @@ const createCheckoutSession = async ({
         price_data: {
           currency,
           product_data: {
-            name: `Order #${String(orderId).slice(-6)}`,
+            name: `Order #${String(ref).slice(-6)}`,
             description: customerName
               ? `Kund: ${customerName}${customerPhone ? ` | ${customerPhone}` : ''}`
               : 'DackDax-bestallning'
@@ -61,11 +63,13 @@ const createCheckoutSession = async ({
       }
     ],
     metadata: {
-      orderId: String(orderId)
+      ...(orderId ? { orderId: String(orderId) } : {}),
+      ...(checkoutDataId ? { checkoutDataId: String(checkoutDataId) } : {})
     },
     payment_intent_data: {
       metadata: {
-        orderId: String(orderId)
+        ...(orderId ? { orderId: String(orderId) } : {}),
+        ...(checkoutDataId ? { checkoutDataId: String(checkoutDataId) } : {})
       }
     },
     success_url: successUrl,
