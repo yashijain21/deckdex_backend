@@ -1,21 +1,23 @@
-﻿const Cart = require('../models/Cart');
+const Cart = require('../models/Cart');
 
 const addToCart = async (req, res, next) => {
   try {
-    const { productId, quantity = 1 } = req.body;
+    const { productId, quantity } = req.body;
+    const parsedQty = Number(quantity);
+    const quantityToAdd = Number.isFinite(parsedQty) && parsedQty > 0 ? parsedQty : 4;
     if (!productId) return res.status(400).json({ message: 'productId is required' });
 
     let cart = await Cart.findOne({ userId: req.user.id });
     if (!cart) {
-      cart = await Cart.create({ userId: req.user.id, items: [{ productId, quantity }] });
+      cart = await Cart.create({ userId: req.user.id, items: [{ productId, quantity: quantityToAdd }] });
       return res.status(201).json(cart);
     }
 
     const existing = cart.items.find((i) => i.productId.toString() === productId);
     if (existing) {
-      existing.quantity += Number(quantity);
+      existing.quantity += quantityToAdd;
     } else {
-      cart.items.push({ productId, quantity });
+      cart.items.push({ productId, quantity: quantityToAdd });
     }
     await cart.save();
     res.json(cart);
@@ -73,3 +75,4 @@ const removeFromCart = async (req, res, next) => {
 };
 
 module.exports = { addToCart, getCart, updateCart, removeFromCart };
+
