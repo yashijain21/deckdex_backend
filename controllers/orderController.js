@@ -4,6 +4,17 @@ const Product = require('../models/Product');
 
 const createOrder = async (req, res, next) => {
   try {
+    const rawCustomer = req.body.customer || {};
+    const customer = {
+      email: String(rawCustomer.email || '').trim(),
+      name: String(rawCustomer.name || '').trim(),
+      phone: String(rawCustomer.phone || '').trim(),
+      address: String(rawCustomer.address || '').trim(),
+      city: String(rawCustomer.city || '').trim(),
+      postalCode: String(rawCustomer.postalCode || '').trim()
+    };
+    const customerType = req.body.customerType === 'foretag' ? 'foretag' : 'privat';
+
     let items = req.body.items;
     if (!items || !items.length) {
       const cart = await Cart.findOne({ userId: req.user.id });
@@ -31,7 +42,9 @@ const createOrder = async (req, res, next) => {
     const order = await Order.create({
       userId: req.user.id,
       items: orderItems,
-      totalAmount
+      totalAmount,
+      customer,
+      customerType
     });
 
     await Cart.findOneAndUpdate({ userId: req.user.id }, { items: [] });

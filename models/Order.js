@@ -9,11 +9,25 @@ const orderItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const customerSchema = new mongoose.Schema(
+  {
+    email: { type: String, trim: true, lowercase: true, default: '' },
+    name: { type: String, trim: true, default: '' },
+    phone: { type: String, trim: true, default: '' },
+    address: { type: String, trim: true, default: '' },
+    city: { type: String, trim: true, default: '' },
+    postalCode: { type: String, trim: true, default: '' }
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     items: [orderItemSchema],
     totalAmount: { type: Number, required: true },
+    customer: { type: customerSchema, default: () => ({}) },
+    customerType: { type: String, enum: ['privat', 'foretag'], default: 'privat' },
     status: { type: String, enum: ['pending', 'paid', 'shipped', 'delivered'], default: 'pending' },
     paymentIntentId: { type: String }
   },
