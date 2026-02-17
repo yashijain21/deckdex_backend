@@ -37,7 +37,11 @@ const createOrder = async (req, res, next) => {
       };
     });
 
-    const totalAmount = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const baseTotal = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const totalAmount =
+      customerType === 'privat'
+        ? Math.round(baseTotal * 1.25)
+        : Math.round(baseTotal);
 
     const order = await Order.create({
       userId: req.user.id,

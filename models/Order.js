@@ -29,7 +29,8 @@ const orderSchema = new mongoose.Schema(
     customer: { type: customerSchema, default: () => ({}) },
     customerType: { type: String, enum: ['privat', 'foretag'], default: 'privat' },
     status: { type: String, enum: ['pending', 'paid', 'shipped', 'delivered'], default: 'pending' },
-    paymentIntentId: { type: String }
+    paymentIntentId: { type: String },
+    stripeSessionId: { type: String }
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );
