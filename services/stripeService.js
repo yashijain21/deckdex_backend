@@ -4,11 +4,28 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const resolvePaymentMethodTypes = () => {
   const raw = process.env.STRIPE_PAYMENT_METHOD_TYPES || 'card,klarna';
-  const parsed = raw
+  const normalized = raw
     .split(',')
     .map((v) => v.trim())
-    .filter(Boolean);
-  return parsed.length ? parsed : ['card', 'klarna'];
+    .filter(Boolean)
+    .map((v) => v.toLowerCase())
+    .map((v) => (v === 'apple_pay' || v === 'google_pay' ? 'card' : v));
+
+  const allowed = new Set([
+    'card',
+    'klarna',
+    'link',
+    'sepa_debit',
+    'bancontact',
+    'ideal',
+    'eps',
+    'giropay',
+    'p24',
+    'sofort'
+  ]);
+
+  const deduped = [...new Set(normalized)].filter((v) => allowed.has(v));
+  return deduped.length ? deduped : ['card', 'klarna'];
 };
 
 const createCheckoutSession = async ({
