@@ -6,6 +6,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const carRoutes = require('./routes/carRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const adminSettingsRoutes = require('./routes/adminSettingsRoutes');
 const { errorHandler, notFound } = require('./middlewares/errorMiddleware');
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/car', carRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/admin/settings', adminSettingsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

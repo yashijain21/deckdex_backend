@@ -9,6 +9,7 @@ const parseCsvFile = (filePath) => {
       .pipe(csv())
       .on('data', (row) => {
         const { width, profile, diameter } = parseDimension(row.dimension);
+        const parsedStock = Number(row.stock);
         results.push({
           url: row.url || '',
           title: row.title || '',
@@ -25,6 +26,7 @@ const parseCsvFile = (filePath) => {
           wet_rating: row.wet_rating || '',
           noise_rating: row.noise_rating || '',
           price: row.price ? Number(row.price) : 0,
+          stock: Number.isFinite(parsedStock) ? Math.max(0, Math.floor(parsedStock)) : 10,
           image: row.image || ''
         });
       })

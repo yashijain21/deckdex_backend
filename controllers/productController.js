@@ -1,6 +1,13 @@
 ﻿const Product = require('../models/Product');
 const { parseCsvFile } = require('../services/csvService');
 
+const normalizeStock = (value, fallback = 10) => {
+  if (value === undefined || value === null || value === '') return fallback;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(0, Math.floor(parsed));
+};
+
 const uploadProducts = async (req, res, next) => {
   try {
     if (!req.file) {
@@ -144,11 +151,14 @@ const getFilters = async (req, res, next) => {
 
 const createProduct = async (req, res, next) => {
   try {
-    const data = req.body;
+    const data = {
+      ...req.body,
+      stock: normalizeStock(req.body?.stock, 10)
+    };
 
     // Basic validation (extend as needed)
-    if (!data.name || !data.price || !data.brand) {
-      return res.status(400).json({ message: "name, price, brand are required" });
+    if (!data.title || !data.price || !data.brand) {
+      return res.status(400).json({ message: "title, price, brand are required" });
     }
 
     const product = await Product.create(data);
@@ -171,7 +181,11 @@ const createProduct = async (req, res, next) => {
 const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const updates = { ...req.body };
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'stock')) {
+      updates.stock = normalizeStock(updates.stock, 0);
+    }
 
     const product = await Product.findByIdAndUpdate(
       id,
@@ -226,4 +240,3 @@ module.exports = {
   updateProduct,     // ✅
   deleteProduct      // ✅
 };
-

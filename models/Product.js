@@ -16,6 +16,7 @@ const productSchema = new mongoose.Schema(
     wet_rating: { type: String, trim: true },
     noise_rating: { type: String, trim: true },
     price: { type: Number, index: true },
+    stock: { type: Number, default: 10, min: 0, index: true },
     image: { type: String, trim: true },
     url: { type: String, trim: true }
   },
