@@ -5,10 +5,40 @@ const parseDimension = require('../utils/parseDimension');
 const parseCsvFile = (filePath) => {
   return new Promise((resolve, reject) => {
     const results = [];
+
+    const toNumberOrNull = (value) => {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const inRangeOrNull = (value, min, max) => {
+      if (value === null || value === undefined) return null;
+      return value >= min && value <= max ? value : null;
+    };
+
     fs.createReadStream(filePath)
       .pipe(csv())
       .on('data', (row) => {
-        const { width, profile, diameter } = parseDimension(row.dimension);
+        const dimensionSource =
+          row.size_index ||
+          row.dimension ||
+          row.dimensions ||
+          row.title ||
+          '';
+
+        const parsedDimension = parseDimension(String(dimensionSource));
+
+        const rawWidth = toNumberOrNull(row.width);
+        const rawProfile = toNumberOrNull(row.profile);
+        const rawDiameter = toNumberOrNull(row.diameter);
+
+        const width =
+          inRangeOrNull(rawWidth, 100, 400) ?? parsedDimension.width;
+        const profile =
+          inRangeOrNull(rawProfile, 20, 95) ?? parsedDimension.profile;
+        const diameter =
+          inRangeOrNull(rawDiameter, 10, 30) ?? parsedDimension.diameter;
+
         const parsedStock = Number(row.stock);
         results.push({
           url: row.url || '',
